@@ -4,20 +4,23 @@ import { Alert, Container, Table } from "reactstrap";
 import { api } from "../../../config";
 import { Link } from "react-router-dom";
 
-export const ListarServ = () => {
+export const Item = (props) => {
+    //console.log(props.match.params.id);
 
     const [data, setData] = useState([]);//inicialização de array que recebe os dados
+
+    const [id, setId] = useState(props.match.params.id);
 
     const [status, setStatus] = useState({
         type: '',
         message: ''
     });
 
-    const getServicos = async () => {//função que vai passar o get da api e trazer resposta no consoloe.log
-        await axios.get(api + "/listaservicos")
+    const getItens = async () => {//função que vai passar o get da api e trazer resposta no consoloe.log
+        await axios.get(api + "/servico/" + id + "/pedidos")
             .then((response) => {
-                console.log(response.data.servicos);
-                setData(response.data.servicos);
+                console.log(response.data.item);
+                setData(response.data.item);
             })
             .catch(() => {
                 setStatus({
@@ -29,14 +32,14 @@ export const ListarServ = () => {
     }
 
     useEffect(() => { // chama a execução
-        getServicos();
-    }, []);
+        getItens();
+    }, [id]);
 
     return (
         <div>
             <Container>
                 <div>
-                    <h1>Visualizar informações do serviço!</h1>
+                    <h1>Pedidos do serviço!</h1>
                 </div>
                 {status.type === 'error' ?
                     <Alert color="danger"> {status.message}
@@ -44,21 +47,21 @@ export const ListarServ = () => {
                 <Table striped>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Descrição</th>
-                            <th>Ação</th>
+                            <th>Pedido</th>
+                            <th>Quantidade</th>
+                            <th>Valor</th>
+                            <th>Visualizar</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.map(item => (
-                            <tr key={item.id}>
-                                <th>{item.id}</th>
-                                <td>{item.nome}</td>
-                                <td>{item.descricao}</td>
+                            <tr key={item.ServicoId}>
+                                <td>{item.PedidoId}</td>
+                                <td>{item.quantidade}</td>
+                                <td>{item.valor}</td>
                                 <td className="text-center/">
-                                    <Link to ={"/listar-pedido/"+item.id}
-                                    className="btn btn-outline-primary btn-sm">
+                                    <Link to={"listar-pedido/"}
+                                        className="btn btn-outline-primary btn-sm">
                                         Consultar
                                     </Link>
                                 </td>
