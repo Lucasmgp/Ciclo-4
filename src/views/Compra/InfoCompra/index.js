@@ -5,7 +5,7 @@ import { api } from "../../../config";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-export const Item = (props) => {
+export const InfoCompra = (props) => {
 
     const [data, setData] = useState([]);
     const [id, setId] = useState(props.match.params.id);
@@ -13,28 +13,28 @@ export const Item = (props) => {
         type: '',
         message: ''
     });
-    const getItens = async () => {
-        await axios.get(api + "/servico/" + id + "/pedidos")
+    const getCompra = async () => {
+        await axios.get(api + "/compras/" + id + "/produtos")
             .then((response) => {
-                console.log(response.data.item);
-                setData(response.data.item);
+                console.log(response.data.compra);
+                setData(response.data.compra);
             }).catch(() => {
                 setStatus({
                     type: 'error',
                     message: 'Erro: Sem conexão com a API.'
                 })
-            })
-    }
-    const apagarItem = async (PedidoId, ServicoId) => {
+            });
+    };
+    const apagarItem = async (CompraId, ProdutoId) => {
 
         const headers = {
             'Content-type': 'application/json'
         };
 
-        await axios.get(api + '/excluiritem/' + PedidoId + "/" + ServicoId, { headers })
+        await axios.get(api + '/excluiritemcompra/' + CompraId + '/' + ProdutoId, { headers })
             .then((response) => {
-                console.log(response.data.item);
-                getItens();
+                console.log(response.data.compra);
+                getCompra();
             }).catch(() => {
                 setStatus({
                     type: 'error',
@@ -44,23 +44,24 @@ export const Item = (props) => {
     };
 
     useEffect(() => {
-        getItens();
+        getCompra();
     }, [id]);
 
     return (
         <div>
             <Container>
-                <div className='d-flex'>
-                    <h1>Visualizar informações dos Pedidos do serviços</h1>
+                <div className="d-flex p-2">
+                    <h1>Visualizar informações das Compras do Cliente</h1>
                     <div className="m-auto p-2">
-                        <Link to="/cadastraritem/" className="btn btn-outline-primary btn-sm">Cadastrar Item</Link>
+                        <Link to="/cadastraritemproduto/" className="btn btn-outline-primary btn-sm">Cadastrar Item-Produto</Link>
                     </div>
                 </div>
                 {status.type === 'error' ? <Alert className="text-center" color="danger"> {status.message}   </Alert> : ""}
                 <Table striped>
                     <thead>
                         <tr>
-                            <th>Pedido</th>
+                            <th>Compra</th>
+                            <th>Produto</th>
                             <th>Quantidade</th>
                             <th>Valor</th>
                             <th>Visualizar</th>
@@ -68,13 +69,16 @@ export const Item = (props) => {
                     </thead>
                     <tbody>
                         {data.map(item => (
-                            <tr key={item.ServicoId}>
-                                <td>{item.PedidoId}</td>
+                            <tr key={item.CompraId}>
+                                <td>{item.CompraId}</td>
+                                <td>{item.ProdutoId}</td>
                                 <td>{item.quantidade}</td>
                                 <td>{item.valor}</td>
                                 <td className="text-center/">
+                                    <Link to={"/editaritemproduto/" + item.CompraId + '/' + item.ProdutoId}
+                                        className="btn btn-outline-warning btn-sm">Editar</Link>
                                     <span className="btn btn-outline-danger btn-sm mr-2"
-                                        onClick={() => apagarItem(item.PedidoId, item.ServicoId)}>Excluir</span>
+                                        onClick={() => apagarItem(item.CompraId, item.ProdutoId)}>Excluir</span>
                                 </td>
                             </tr>
                         ))}

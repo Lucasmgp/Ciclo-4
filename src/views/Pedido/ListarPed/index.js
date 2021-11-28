@@ -1,40 +1,39 @@
-import { Alert, Container } from "reactstrap";
+import { Alert, Container, NavItem } from "reactstrap";
 import { Table } from "reactstrap";
 import axios from "axios";
 import { api } from "../../../config";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-export const Item = (props) => {
+export const ListarPed = () => {
 
     const [data, setData] = useState([]);
-    const [id, setId] = useState(props.match.params.id);
     const [status, setStatus] = useState({
         type: '',
         message: ''
     });
-    const getItens = async () => {
-        await axios.get(api + "/servico/" + id + "/pedidos")
+    const getPed = async () => {
+        await axios.get(api + "/listapedidos")
             .then((response) => {
-                console.log(response.data.item);
-                setData(response.data.item);
+                console.log(response.data.pedidos);
+                setData(response.data.pedidos);
             }).catch(() => {
                 setStatus({
                     type: 'error',
                     message: 'Erro: Sem conexão com a API.'
                 })
-            })
-    }
-    const apagarItem = async (PedidoId, ServicoId) => {
+            });
+    };
+    const apagarPedido = async (id) => {
 
         const headers = {
             'Content-type': 'application/json'
         };
 
-        await axios.get(api + '/excluiritem/' + PedidoId + "/" + ServicoId, { headers })
+        await axios.get(api + '/excluirpedido/' + id, { headers })
             .then((response) => {
                 console.log(response.data.item);
-                getItens();
+                getPed();
             }).catch(() => {
                 setStatus({
                     type: 'error',
@@ -44,37 +43,45 @@ export const Item = (props) => {
     };
 
     useEffect(() => {
-        getItens();
-    }, [id]);
+        getPed();
+    }, [])
 
     return (
         <div>
             <Container>
-                <div className='d-flex'>
-                    <h1>Visualizar informações dos Pedidos do serviços</h1>
+                <div className="d-flex">
+                    <div>
+                        <h1>Visualizar informações de Pedidos </h1>
+                    </div>
                     <div className="m-auto p-2">
-                        <Link to="/cadastraritem/" className="btn btn-outline-primary btn-sm">Cadastrar Item</Link>
+                        <Link to="cadastrarpedido" className="btn btn-outline-primary btn-sm">Cadastrar Pedido</Link>
                     </div>
                 </div>
+                <hr className="m-1" />
+
                 {status.type === 'error' ? <Alert className="text-center" color="danger"> {status.message}   </Alert> : ""}
                 <Table striped>
                     <thead>
                         <tr>
-                            <th>Pedido</th>
-                            <th>Quantidade</th>
-                            <th>Valor</th>
-                            <th>Visualizar</th>
+                            <th>ID</th>
+                            <th>Data</th>
+                            <th>ClienteId</th>
+                            <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.map(item => (
-                            <tr key={item.ServicoId}>
-                                <td>{item.PedidoId}</td>
-                                <td>{item.quantidade}</td>
-                                <td>{item.valor}</td>
+                            <tr key={item.id}>
+                                <td>{item.id}</td>
+                                <td>{item.data}</td>
+                                <td>{item.ClienteId}</td>
                                 <td className="text-center/">
+                                    <Link to={"/listarpedido/" + item.id}
+                                        className="btn btn-outline-primary btn-sm">Consultar</Link>
+                                    <Link to={"/editarpedido/" + item.id}
+                                        className="btn btn-outline-warning btn-sm">Editar</Link>
                                     <span className="btn btn-outline-danger btn-sm mr-2"
-                                        onClick={() => apagarItem(item.PedidoId, item.ServicoId)}>Excluir</span>
+                                        onClick={() => apagarPedido(item.id)}>Excluir</span>
                                 </td>
                             </tr>
                         ))}
